@@ -1,0 +1,22 @@
+Patient Name: John Doe
+Age: 45
+Gender: Male
+
+Chief Complaint: Fever and headache for 2 days.
+
+Symptoms:
+- Fever: 101°F
+- Headache
+- Mild fatigue
+
+Diagnosis: Suspected viral fever.
+
+Medications:
+- Paracetamol 500 mg
+
+Allergies: No known drug allergies.
+
+Vital Signs:
+- Temperature: 101°F
+- Blood Pressure: 120/80 mmHg
+- Heart Rate: 88 bpm
