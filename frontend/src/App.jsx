@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
-const API_URL = "https://clinicalreview-ai-backend.onrender.com";
+const API_URL = "https://clinicalreview-ai-backend-docker.onrender.com";
 
 const SAMPLE_TEXT =
   "Patient presents with headache and nausea.\n" +
