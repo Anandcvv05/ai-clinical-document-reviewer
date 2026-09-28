@@ -1,264 +1,216 @@
-# ClinicalReview AI – AI/ML Design Documentation
+# AI/ML Design Document
 
-## 1. Overview
+## 1. Project Overview
 
-ClinicalReview AI is a web-based clinical document review application that processes clinical text, PDF documents, and images to generate structured clinical reports.
+### Project Name
+AI Clinical Document Reviewer
 
-The current implementation uses a **rule-based clinical analysis approach** rather than a trained machine learning model or an external AI service.
+### Objective
 
-The system extracts and processes clinical information, identifies relevant details using predefined rules, and generates a structured report.
+The objective of this project is to develop a web application that processes clinical documents and generates structured review reports.
 
-The application is intended for educational and demonstration purposes only.
+The application supports clinical text, PDF documents, and PNG images.
+
+It uses document processing, OCR, and rule-based analysis to extract and organize relevant clinical information.
 
 ---
 
 ## 2. AI/ML Approach
 
-### 2.1 Analysis Method
+The current implementation uses a **rule-based clinical analysis engine** rather than a trained machine learning model.
 
-The application uses rule-based analysis to identify clinical information from the submitted document.
+The system processes clinical text and applies predefined logic to identify relevant information and generate structured review results.
 
-The analysis relies on predefined patterns and rules to identify relevant medical information.
+OCR is used to extract text from PNG images.
 
-### 2.2 Model or Service Used
+### Main Components
 
-- **Approach:** Rule-based clinical information analysis
-- **Machine Learning Model:** No trained ML model is currently integrated.
-- **External AI Service:** No external AI service is currently integrated.
-
-This approach was selected to provide a simple, understandable, and locally executable analysis pipeline.
-
----
-
-## 3. Document Processing Pipeline
-
-The application follows these processing stages:
-
-### Stage 1: Input Collection
-
-The user can submit clinical information through:
-
-- Direct text input
-- PDF document upload
-- Image upload
-
-The frontend sends the input to the FastAPI backend through the appropriate API endpoint.
-
-### Stage 2: Input Validation
-
-The backend validates the submitted input.
-
-Validation includes checking for empty text, unsupported file types, and unreadable or corrupted documents.
-
-Invalid inputs are rejected with appropriate error messages.
-
-### Stage 3: Text Extraction
-
-The document-processing layer extracts text from supported document formats.
-
-The extracted text is passed to the preprocessing stage.
-
-The exact extraction method depends on the submitted file format and the implemented processing functions.
-
-### Stage 4: Text Preprocessing
-
-The extracted text is cleaned before analysis.
-
-Preprocessing helps standardize the input and prepare it for rule-based information extraction.
-
-### Stage 5: Clinical Information Extraction
-
-The analyzer uses predefined patterns and rules to identify relevant clinical information.
-
-Examples of information that may be identified include:
-
-- Patient details
-- Symptoms
-- Vital signs
-- Medications
-- Allergies
-- Other relevant clinical information present in the document
-
-The extracted information is used to construct the report.
-
-### Stage 6: Structured Report Generation
-
-The backend organizes the extracted information into a structured clinical report.
-
-The report is returned to the frontend for display.
-
-### Stage 7: Data Persistence
-
-The completed analysis is stored in the SQLite database through SQLAlchemy.
-
-The saved report can later be retrieved through the Analysis History feature.
+1. Document text extraction
+2. Image preprocessing and OCR
+3. Rule-based clinical text analysis
+4. Structured report generation
+5. Persistent storage of analysis results
 
 ---
 
-## 4. Information Extraction and Data Flow
+## 3. Input Processing
 
-The information extraction workflow is:
+The system accepts three types of input.
 
-1. Receive clinical text or an uploaded document.
-2. Validate the input.
-3. Extract text from the document.
-4. Clean and preprocess the extracted text.
-5. Apply predefined clinical analysis rules.
-6. Organize the extracted information into a structured report.
-7. Store the completed analysis in the database.
-8. Return the report to the frontend.
+### 3.1 Clinical Text
 
-The frontend is responsible for displaying the report and providing access to saved analyses.
+Users can enter clinical text directly into the application.
 
-The core processing logic is handled by the backend.
+The text is passed to the analysis engine for processing.
 
----
+### 3.2 PDF Documents
 
-## 5. Structured Output
+PDF documents are processed using PyMuPDF.
 
-The application generates a structured clinical report rather than displaying only the original document text.
+The extracted text is passed to the analysis engine.
 
-The report organizes relevant information into sections.
+### 3.3 PNG Images
 
-The structured report is used for:
+PNG images are processed using Pillow and Tesseract OCR.
 
-- Displaying the analysis summary
-- Presenting detailed clinical information
-- Saving completed analyses
-- Retrieving previously generated reports
-- Supporting PDF report downloads
-
-The report reflects the information identified by the current rule-based analyzer.
+OCR extracts text from the image, which is then passed to the analysis engine.
 
 ---
 
-## 6. Handling Missing or Uncertain Information
+## 4. OCR Processing
 
-Clinical documents may contain incomplete or unclear information.
+### Objective
 
-The current implementation relies on the information extracted from the submitted document and the rules defined in the analyzer.
+OCR is used to convert text contained in PNG images into machine-readable text.
 
-Important limitations include:
+### Technology
 
-- Missing information may not be identified or interpreted correctly.
-- Unclear or ambiguous clinical statements may not be understood accurately.
-- The rule-based analyzer does not independently verify the truth of the extracted information.
-- The system should not assume that an unmentioned clinical detail is absent.
+- Tesseract OCR
+- Pytesseract
+- Pillow
 
-A future version could explicitly label missing information as "Not provided" and distinguish uncertain information from confirmed findings.
+### Processing Pipeline
+
+```mermaid
+flowchart TD
+    A[PNG Image Upload] --> B[Image Loading]
+    B --> C[Image Preprocessing]
+    C --> D[Tesseract OCR]
+    D --> E[Extracted Text]
+    E --> F[Rule-Based Analysis]
+    F --> G[Structured Report]
+```
+
+### OCR Workflow
+
+1. The user uploads a PNG image.
+2. The backend loads the image.
+3. The image is processed for text extraction.
+4. Tesseract OCR extracts the text.
+5. The extracted text is passed to the analysis engine.
+6. The analysis engine generates a structured report.
+
+OCR accuracy depends on image quality, text clarity, and document formatting.
 
 ---
 
-## 7. Reducing Incorrect or Unsupported Information
+## 5. Rule-Based Clinical Analysis
 
-The current system uses predefined rules and patterns instead of generating unrestricted responses through a generative AI model.
+### Objective
 
-This limits the scope of the analysis to the information and patterns supported by the implemented rules.
+The analysis engine identifies relevant clinical information from the extracted text and organizes it into a structured report.
 
-However, rule-based processing does not guarantee that every extracted result is correct.
+### Approach
 
-Potential weaknesses include:
+The system uses predefined rules and logic to process clinical text.
 
-- Incorrect matches caused by similar words or phrases
-- Failure to recognize unfamiliar medical terminology
-- Incorrect interpretation of negation or context
-- Incomplete extraction from poorly formatted documents
-- Failure to identify relationships between clinical findings
+The analysis process may involve:
 
-The generated report should therefore be treated as an automated extraction result, not a medically validated conclusion.
+- Identifying relevant clinical terms.
+- Extracting information from the supplied text.
+- Organizing extracted information into structured sections.
+- Generating a review report.
+
+### Processing Pipeline
+
+```mermaid
+flowchart TD
+    A[Extracted Clinical Text] --> B[Text Processing]
+    B --> C[Rule-Based Analysis]
+    C --> D[Information Organization]
+    D --> E[Structured Report Generation]
+    E --> F[Database Storage]
+    F --> G[Frontend Display]
+```
+
+### Important Note
+
+The current implementation does not use a trained machine learning model, neural network, or deep learning model for clinical analysis.
+
+The analysis results depend on the rules implemented in the application.
+
+---
+
+## 6. Report Generation
+
+The system generates a structured report from the analysis results.
+
+The report is returned to the frontend and stored in the database.
+
+The frontend allows users to review the generated report and download it as a PDF.
+
+---
+
+## 7. Data Storage
+
+Analysis records are stored using SQLAlchemy and SQLite.
+
+The database supports:
+
+- Saving analysis results.
+- Retrieving analysis history.
+- Retrieving individual records.
+- Deleting individual records.
+- Clearing analysis history.
+
+The stored results support the application's history feature.
 
 ---
 
 ## 8. Error Handling
 
-The application includes validation and error handling for common input failures.
+The system handles errors that may occur during:
 
-Examples include:
+- Input validation
+- PDF text extraction
+- Image processing
+- OCR text extraction
+- Clinical text processing
+- Database operations
 
-| Failure Scenario | Expected Handling |
-|---|---|
-| Empty clinical text | Display a validation message |
-| Unsupported file type | Reject the file and display an error |
-| Corrupted PDF | Display an error indicating that the file cannot be opened |
-| Unreadable document | Report the processing failure |
-| Invalid input | Return an appropriate error response |
-
-Additional improvements could include more detailed error logging and more comprehensive handling of unexpected processing failures.
+Errors are returned to the frontend for display.
 
 ---
 
-## 9. Technical Decisions
-
-### 9.1 Rule-Based Analysis
-
-A rule-based approach was selected for the current implementation because it is straightforward to implement and does not require model training or external AI services.
-
-**Trade-off:** The approach is easier to understand and execute, but it has limited flexibility compared with advanced clinical NLP or machine learning systems.
-
-### 9.2 Backend Framework
-
-FastAPI was selected to provide a dedicated backend service.
-
-It handles API requests, input validation, document processing, analysis, and database interactions.
-
-### 9.3 Frontend Framework
-
-React with Vite was selected to build an interactive user interface.
-
-It supports report display, document submission, and analysis history.
-
-### 9.4 Database
-
-SQLite was selected for persistent storage because it is lightweight and suitable for a local demonstration application.
-
-SQLAlchemy provides database interaction through an ORM.
-
-### 9.5 Frontend and Backend Separation
-
-The frontend and backend are separated so that the user interface communicates with the backend through APIs.
-
-This keeps the core processing logic outside the frontend and makes the application easier to maintain.
-
----
-
-## 10. Limitations
+## 9. Limitations
 
 The current implementation has the following limitations:
 
-1. It uses rule-based analysis rather than a trained clinical ML model.
-2. It may not recognize all medical terminology or clinical expressions.
-3. It may fail to interpret complex clinical context.
-4. Its accuracy depends on the quality of document extraction and predefined rules.
-5. It has not been clinically validated.
-6. It must not be used as a substitute for professional medical judgment.
-
-All clinical information used for demonstration and testing should be synthetic.
+1. The clinical analysis engine is rule-based and does not learn from data.
+2. OCR accuracy depends on image quality and text clarity.
+3. The system may not correctly interpret complex clinical terminology.
+4. The generated report may not capture all relevant clinical information.
+5. The application is not intended to diagnose diseases or recommend treatment.
+6. The system has not been established as a clinically validated medical device.
 
 ---
 
-## 11. Future Improvements
+## 10. Future Enhancements
 
-Possible improvements include:
+Possible future improvements include:
 
-- Integrating a clinical NLP model for more advanced information extraction.
-- Improving recognition of medical terminology and clinical relationships.
-- Adding explicit handling of missing and uncertain information.
-- Improving extraction from scanned and low-quality documents.
-- Adding validation for structured report output.
-- Introducing automated evaluation using synthetic clinical test cases.
-- Improving error logging and processing reliability.
-- Evaluating the system against a carefully prepared synthetic dataset.
+- Integrating a trained NLP model for clinical information extraction.
+- Improving OCR accuracy through image preprocessing.
+- Supporting additional document formats.
+- Adding more advanced clinical text classification.
+- Evaluating the system using a carefully prepared synthetic dataset.
+- Adding stronger privacy and access-control mechanisms.
 
-Any future model integration should be evaluated for accuracy, reliability, and safety before being used in clinical settings.
+These are proposed enhancements and are not part of the current implementation.
+
+---
+
+## 11. Ethical and Safety Considerations
+
+- Use synthetic clinical data for testing and demonstration.
+- Do not upload real patient information without appropriate authorization and safeguards.
+- Do not treat generated reports as medical advice.
+- A qualified healthcare professional should independently review clinical information.
 
 ---
 
 ## 12. Conclusion
 
-ClinicalReview AI demonstrates a document-processing and rule-based clinical information extraction workflow.
+The AI Clinical Document Reviewer combines document processing, OCR, rule-based analysis, and structured report generation in a web application.
 
-The application combines document processing, a FastAPI backend, a React frontend, structured report generation, and SQLite persistence.
-
-Although the current system does not use a trained machine learning model, it provides a foundation for future development of more advanced clinical document analysis capabilities.
-
-The application is intended for educational and demonstration purposes only.
+The current implementation focuses on extracting and organizing clinical information rather than making autonomous medical decisions.
